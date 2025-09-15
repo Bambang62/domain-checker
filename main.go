@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -13,7 +14,11 @@ import (
 // Scrape WebsiteSEOchecker
 func scrapeMoz(domain string) map[string]string {
 	url := "https://websiteseochecker.com/bulk-check-page-authority/?query=" + domain
-	resp, err := http.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; RenderBot/1.0)")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("Error WebsiteSEOchecker:", err)
 		return nil
@@ -23,7 +28,6 @@ func scrapeMoz(domain string) map[string]string {
 	doc, _ := goquery.NewDocumentFromReader(resp.Body)
 
 	data := make(map[string]string)
-
 	doc.Find("table tr").Each(func(i int, s *goquery.Selection) {
 		key := strings.TrimSpace(s.Find("td").First().Text())
 		val := strings.TrimSpace(s.Find("td").Eq(1).Text())
@@ -38,7 +42,11 @@ func scrapeMoz(domain string) map[string]string {
 // Scrape Ahrefs Free Backlink Checker
 func scrapeAhrefs(domain string) map[string]string {
 	url := "https://ahrefs.com/backlink-checker?input=" + domain
-	resp, err := http.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; RenderBot/1.0)")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("Error Ahrefs:", err)
 		return nil
@@ -48,29 +56,13 @@ func scrapeAhrefs(domain string) map[string]string {
 	doc, _ := goquery.NewDocumentFromReader(resp.Body)
 
 	data := make(map[string]string)
-
 	data["DR"] = strings.TrimSpace(doc.Find(".backlinks-profile-score").First().Text())
 	data["Backlinks"] = strings.TrimSpace(doc.Find(".backlinks-profile-item:contains('Backlinks') .backlinks-profile-value").Text())
 	data["Linking Websites"] = strings.TrimSpace(doc.Find(".backlinks-profile-item:contains('Linking websites') .backlinks-profile-value").Text())
 
-	// Dofollow / Nofollow %
-	df := doc.Find(".backlinks-profile-item:contains('dofollow') .backlinks-profile-value").Text()
-	data["% Dofollow"] = df
-	if df != "" {
-		data["% Nofollow"] = fmt.Sprintf("%d%%", 100-parsePercent(df))
-	}
-
 	return data
 }
 
-func parsePercent(s string) int {
-	s = strings.ReplaceAll(s, "%", "")
-	var p int
-	fmt.Sscanf(s, "%d", &p)
-	return p
-}
-
-// Main UI
 func main() {
 	r := gin.Default()
 
@@ -109,5 +101,11 @@ func main() {
 		c.String(200, html)
 	})
 
-	r.Run(":8080")
+	// Ambil PORT dari Render
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // default buat lokal
+	}
+	log.Println("Server jalan di port:", port)
+	r.Run(":" + port)
 }
