@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: domain-checker
+    env: go
+    buildCommand: go build -o app .
+    startCommand: ./app
+    plan: free
