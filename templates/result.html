@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hasil Cek</title>
+</head>
+<body>
+  <h3>✅ Hasil Cek untuk: {{.Domain}}</h3>
+  <table border="1" cellpadding="6">
+    <tr><td>DA (Moz)</td><td>{{.DA}}</td></tr>
+    <tr><td>PA (Moz)</td><td>{{.PA}}</td></tr>
+    <tr><td>Spam Score</td><td>{{.Spam}}</td></tr>
+    <tr><td>Total Backlinks</td><td>{{.Backlinks}}</td></tr>
+    <tr><td>DoFollow</td><td>{{.DoFollow}}</td></tr>
+    <tr><td>NoFollow</td><td>{{.NoFollow}}</td></tr>
+    <tr><td>DR (Ahrefs)</td><td>{{.DR}}</td></tr>
+    <tr><td>Linking Websites</td><td>{{.LinkingWeb}}</td></tr>
+    <tr><td>Domain Age</td><td>{{.DomainAge}}</td></tr>
+    <tr><td>Wayback Machine</td><td><a href="{{.Wayback}}" target="_blank">View History</a></td></tr>
+  </table>
+  <br>
+  <a href="/">🔄 Cek Domain Lain</a>
+</body>
+</html>
