@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: domain-checker
+    env: go
+    buildCommand: |
+      go mod tidy
+      go build -o app .
+    startCommand: ./app
+    plan: free
